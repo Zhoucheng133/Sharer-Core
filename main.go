@@ -15,6 +15,8 @@ func main() {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
 			utils.GetRaw(c)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
+			utils.Download(c)
 		}
 	})
 
