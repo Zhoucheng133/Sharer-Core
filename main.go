@@ -1,8 +1,8 @@
 package main
 
 import (
+	"sharer-core/utils"
 	"strings"
-	"virtual-directory-core/utils"
 
 	"github.com/gin-gonic/gin"
 )

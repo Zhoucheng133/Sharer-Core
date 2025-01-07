@@ -1,4 +1,4 @@
-module virtual-directory-core
+module sharer-core
 
 go 1.23.4
 
