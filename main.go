@@ -10,7 +10,9 @@ import (
 func requestMiddleware(useAuth bool, username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/api") && useAuth {
-			if utils.TokenCheck(username, password, c.GetHeader("token")) {
+			if strings.HasPrefix(c.Request.URL.Path, "/api/auth") {
+				c.Next()
+			} else if utils.TokenCheck(username, password, c.GetHeader("token")) {
 				c.Next()
 			} else {
 				c.JSON(401, gin.H{
