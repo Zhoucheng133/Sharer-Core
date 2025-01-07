@@ -40,11 +40,6 @@ func Download(c *gin.Context) {
 	defer file.Close()
 	fileInfo, _ := os.Stat(decodedPath)
 	if fileInfo.IsDir() {
-		// c.JSON(400, gin.H{
-		// 	"ok":  false,
-		// 	"msg": "The path is a directory",
-		// })
-		// return
 		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", filepath.Base(decodedPath)))
 		c.Header("Content-Type", "application/zip")
 		zipWriter := zip.NewWriter(c.Writer)
