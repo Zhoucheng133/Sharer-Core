@@ -21,3 +21,9 @@ func Login(c *gin.Context) {
 		"msg": "",
 	})
 }
+
+func Auth(useAuth bool, c *gin.Context) {
+	c.JSON(200, gin.H{
+		"useAuth": useAuth,
+	})
+}

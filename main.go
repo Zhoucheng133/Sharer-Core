@@ -9,9 +9,7 @@ import (
 
 func requestMiddleware(useAuth bool, username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/login") || !useAuth {
-			c.Next()
-		} else {
+		if strings.HasPrefix(c.Request.URL.Path, "/api") && useAuth {
 			if utils.TokenCheck(username, password, c.GetHeader("token")) {
 				c.Next()
 			} else {
@@ -21,6 +19,8 @@ func requestMiddleware(useAuth bool, username string, password string) gin.Handl
 				})
 				c.Abort()
 			}
+		} else {
+			c.Next()
 		}
 	}
 }
@@ -44,6 +44,8 @@ func main() {
 			utils.Download(c)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
+			utils.Auth(useAuth, c)
 		}
 	})
 
