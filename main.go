@@ -30,7 +30,7 @@ func main() {
 	// -->测试代码<---
 	username := "admin"
 	password := "123456"
-	useAuth := true
+	useAuth := false
 	//-->测试结束<--
 
 	r := gin.New()
