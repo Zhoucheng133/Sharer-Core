@@ -45,6 +45,8 @@ func main() {
 			utils.GetList(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
 			utils.MultiDownload(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
+			utils.Upload(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
