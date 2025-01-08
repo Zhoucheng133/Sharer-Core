@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Body struct {
+type ListBody struct {
 	Path string `json:"path"`
 }
 
@@ -59,7 +59,7 @@ func listHandler(path string) RequestResponse {
 }
 
 func GetList(c *gin.Context, basePath string) {
-	var body Body
+	var body ListBody
 
 	if err := c.ShouldBind(&body); err == nil {
 		if body.Path == "" {

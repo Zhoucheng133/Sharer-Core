@@ -33,15 +33,18 @@ func main() {
 	username := "admin"
 	password := "123456"
 	useAuth := false
-	basePath := "/Users/zhoucheng/Downloads"
+	basePath := "/Users/zhoucheng/Desktop"
 	//-->测试结束<--
 
+	// 所有路径请求path需要添加头/
 	r := gin.New()
 	r.Use(requestMiddleware(useAuth, username, password))
 	r.POST("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
 			utils.GetList(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
+			utils.MultiDownload(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
