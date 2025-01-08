@@ -33,17 +33,23 @@ func main() {
 	username := "admin"
 	password := "123456"
 	useAuth := false
+	basePath := "/Users/zhoucheng/Desktop"
 	//-->测试结束<--
 
 	r := gin.New()
 	r.Use(requestMiddleware(useAuth, username, password))
-	r.POST("/api/list", utils.GetList)
+	r.POST("/*path", func(c *gin.Context) {
+		switch {
+		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
+			utils.GetList(c, basePath)
+		}
+	})
 	r.GET("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c)
+			utils.GetRaw(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c)
+			utils.Download(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -57,7 +58,7 @@ func listHandler(path string) RequestResponse {
 	}
 }
 
-func GetList(c *gin.Context) {
+func GetList(c *gin.Context, basePath string) {
 	var body Body
 
 	if err := c.ShouldBind(&body); err == nil {
@@ -67,7 +68,7 @@ func GetList(c *gin.Context) {
 				"msg": "Path parameter is required",
 			})
 		} else {
-			c.JSON(200, listHandler(body.Path))
+			c.JSON(200, listHandler(fmt.Sprint(basePath, body.Path)))
 		}
 		return
 	}

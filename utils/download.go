@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Download(c *gin.Context) {
+func Download(c *gin.Context, basePath string) {
 	rawPath := c.DefaultQuery("path", "")
 	if rawPath == "" {
 		c.JSON(400, gin.H{
@@ -22,6 +22,7 @@ func Download(c *gin.Context) {
 		return
 	}
 	decodedPath, err := url.QueryUnescape(rawPath)
+	decodedPath = basePath + "/" + decodedPath
 	if err != nil {
 		c.JSON(400, gin.H{
 			"ok":  false,
