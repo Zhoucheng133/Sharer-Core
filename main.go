@@ -33,7 +33,7 @@ func main() {
 	username := "admin"
 	password := "123456"
 	useAuth := false
-	basePath := "/Users/zhoucheng/Desktop"
+	basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
 	r := gin.New()
