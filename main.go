@@ -9,6 +9,19 @@ import (
 
 func requestMiddleware(useAuth bool, username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		// -->允许跨域内容，开始<--
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		// 设置允许的方法
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		// 设置允许的请求头
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		// 设置允许暴露的响应头
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		// 设置是否允许携带 Cookie
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		// -->允许跨域内容，结束<--
+
 		if strings.HasPrefix(c.Request.URL.Path, "/api") && useAuth {
 			if strings.HasPrefix(c.Request.URL.Path, "/api/auth") {
 				c.Next()
