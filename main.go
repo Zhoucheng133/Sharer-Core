@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"sharer-core/utils"
 	"strings"
 
@@ -40,6 +41,9 @@ func requestMiddleware(useAuth bool, username string, password string) gin.Handl
 	}
 }
 
+//go:embed Sharer-Web/dist/*
+var staticFiles embed.FS
+
 func main() {
 
 	// -->测试代码<---
@@ -72,6 +76,8 @@ func main() {
 			utils.Login(c)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
 			utils.Auth(useAuth, c)
+		default:
+			utils.StaticHandler(c, staticFiles)
 		}
 	})
 
