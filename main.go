@@ -15,7 +15,7 @@ func requestMiddleware(useAuth bool, username string, password string) gin.Handl
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, token")
-		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Disposition, File-Name")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		// -->允许跨域内容，结束<--
 
@@ -50,8 +50,8 @@ func main() {
 	// -->测试代码<---
 	username := "admin"
 	password := "123456"
-	useAuth := false
-	basePath := "/Users/zhoucheng/Desktop"
+	useAuth := true
+	basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
 	// 所有路径请求path需要添加头/

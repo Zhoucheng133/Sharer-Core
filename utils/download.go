@@ -46,7 +46,8 @@ func Download(c *gin.Context, basePath string) {
 	defer file.Close()
 	fileInfo, _ := os.Stat(decodedPath)
 	if fileInfo.IsDir() {
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", url.QueryEscape(filepath.Base(decodedPath))))
+		// c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", url.QueryEscape(filepath.Base(decodedPath))))
+		c.Header("File-Name", url.QueryEscape(filepath.Base(decodedPath)+".zip"))
 		c.Header("Content-Type", "application/zip")
 		zipWriter := zip.NewWriter(c.Writer)
 		defer zipWriter.Close()
@@ -90,7 +91,8 @@ func Download(c *gin.Context, basePath string) {
 		}
 		return
 	}
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", url.QueryEscape(filepath.Base(decodedPath))))
+	// c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", url.QueryEscape(filepath.Base(decodedPath))))
+	c.Header("File-Name", url.QueryEscape(filepath.Base(decodedPath)))
 	c.File(decodedPath)
 }
 
@@ -113,7 +115,8 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 
 	var fileName string = fmt.Sprint(data.Files[0], "_and_more.zip")
 	c.Header("Content-Type", "application/zip")
-	c.Header("Content-Disposition", fmt.Sprint("attachment; filename=", url.QueryEscape(fileName)))
+	// c.Header("Content-Disposition", fmt.Sprint("attachment; filename=", url.QueryEscape(fileName)))
+	c.Header("File-Name", url.QueryEscape(fileName))
 
 	zipWriter := zip.NewWriter(c.Writer)
 	defer zipWriter.Close()
