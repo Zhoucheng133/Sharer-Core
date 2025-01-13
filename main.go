@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func requestMiddleware(useAuth bool, username string, password string) gin.HandlerFunc {
+func requestMiddleware(username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// -->允许跨域内容，开始<--
@@ -24,10 +24,16 @@ func requestMiddleware(useAuth bool, username string, password string) gin.Handl
 			return
 		}
 
-		if strings.HasPrefix(c.Request.URL.Path, "/api") && useAuth {
-			if strings.HasPrefix(c.Request.URL.Path, "/api/auth") {
-				c.Next()
-			} else if utils.TokenCheck(username, password, c.GetHeader("token")) {
+		switch {
+		case len(username) == 0 && len(password) == 0:
+			c.Next()
+		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/download"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
+			c.Next()
+		default:
+			if utils.TokenCheck(username, password, c.GetHeader("token")) {
 				c.Next()
 			} else {
 				c.JSON(401, gin.H{
@@ -36,8 +42,6 @@ func requestMiddleware(useAuth bool, username string, password string) gin.Handl
 				})
 				c.Abort()
 			}
-		} else {
-			c.Next()
 		}
 	}
 }
@@ -48,21 +52,20 @@ var staticFiles embed.FS
 func main() {
 
 	// -->测试代码<---
-	username := "admin"
-	password := "123456"
-	useAuth := true
+	username := ""
+	password := ""
+	// useAuth := true
+	// 如果username=="" && password==""表明不需要验证
 	basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
 	// 所有路径请求path需要添加头/
 	r := gin.New()
-	r.Use(requestMiddleware(useAuth, username, password))
+	r.Use(requestMiddleware(username, password))
 	r.POST("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
 			utils.GetList(c, basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
 			utils.Upload(c, basePath)
 		}
@@ -70,13 +73,15 @@ func main() {
 	r.GET("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c, basePath)
+			utils.GetRaw(c, basePath, username, password)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
 			utils.Download(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
+			utils.MultiDownload(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
-			utils.Auth(useAuth, c)
+			utils.Auth(c, username, password)
 		default:
 			utils.StaticHandler(c, staticFiles)
 		}
