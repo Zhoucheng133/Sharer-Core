@@ -17,7 +17,18 @@ type MultiDownloadType struct {
 	Files []string `json:"files"`
 }
 
-func Download(c *gin.Context, basePath string) {
+func Download(c *gin.Context, basePath string, username string, password string) {
+
+	token := c.DefaultQuery("token", "")
+
+	if !TokenCheck(username, password, token) {
+		c.JSON(401, gin.H{
+			"ok":  false,
+			"msg": "Not authorized",
+		})
+		return
+	}
+
 	rawPath := c.DefaultQuery("path", "")
 	if rawPath == "" {
 		c.JSON(400, gin.H{
@@ -46,8 +57,7 @@ func Download(c *gin.Context, basePath string) {
 	defer file.Close()
 	fileInfo, _ := os.Stat(decodedPath)
 	if fileInfo.IsDir() {
-		// c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.zip", url.QueryEscape(filepath.Base(decodedPath))))
-		c.Header("File-Name", url.QueryEscape(filepath.Base(decodedPath)+".zip"))
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s.zip", url.QueryEscape(filepath.Base(decodedPath))))
 		c.Header("Content-Type", "application/zip")
 		zipWriter := zip.NewWriter(c.Writer)
 		defer zipWriter.Close()
@@ -91,8 +101,7 @@ func Download(c *gin.Context, basePath string) {
 		}
 		return
 	}
-	// c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", url.QueryEscape(filepath.Base(decodedPath))))
-	c.Header("File-Name", url.QueryEscape(filepath.Base(decodedPath)))
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.QueryEscape(filepath.Base(decodedPath))))
 	c.File(decodedPath)
 }
 

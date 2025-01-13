@@ -52,11 +52,11 @@ var staticFiles embed.FS
 func main() {
 
 	// -->测试代码<---
-	username := ""
-	password := ""
+	username := "admin"
+	password := "123456"
 	// useAuth := true
 	// 如果username=="" && password==""表明不需要验证
-	basePath := "/Users/zhoucheng/Downloads"
+	basePath := "/Users/zhoucheng/Desktop"
 	//-->测试结束<--
 
 	// 所有路径请求path需要添加头/
@@ -75,7 +75,7 @@ func main() {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
 			utils.GetRaw(c, basePath, username, password)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c, basePath)
+			utils.Download(c, basePath, username, password)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
 			utils.MultiDownload(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
