@@ -127,7 +127,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 		}
 	}
 
-	var fileName string = "MultiFiles.zip"
+	var fileName string = "多文件下载.zip"
 	c.Header("Content-Type", "application/zip")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.QueryEscape(fileName)))
 
