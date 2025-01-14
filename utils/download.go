@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -70,8 +69,13 @@ func Download(c *gin.Context, basePath string, username string, password string)
 				return nil
 			}
 
+			relativePath, err := filepath.Rel(decodedPath, path)
+			if err != nil {
+				return err
+			}
+
 			// 为每个文件创建一个新的 ZIP 条目
-			zipEntry, err := zipWriter.Create(strings.TrimPrefix(path, decodedPath+"/"))
+			zipEntry, err := zipWriter.Create(relativePath)
 			if err != nil {
 				return err
 			}
