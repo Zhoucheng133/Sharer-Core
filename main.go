@@ -25,6 +25,8 @@ func requestMiddleware(username string, password string) gin.HandlerFunc {
 		}
 
 		switch {
+		case !strings.HasPrefix(c.Request.URL.Path, "/api"):
+			c.Next()
 		case len(username) == 0 && len(password) == 0:
 			c.Next()
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"),
