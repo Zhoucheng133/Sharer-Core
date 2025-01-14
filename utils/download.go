@@ -2,6 +2,7 @@ package utils
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -126,10 +127,9 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 		}
 	}
 
-	var fileName string = fmt.Sprint(data.Files[0], "_and_more.zip")
+	var fileName string = "MultiFiles.zip"
 	c.Header("Content-Type", "application/zip")
-	// c.Header("Content-Disposition", fmt.Sprint("attachment; filename=", url.QueryEscape(fileName)))
-	c.Header("File-Name", url.QueryEscape(fileName))
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.QueryEscape(fileName)))
 
 	zipWriter := zip.NewWriter(c.Writer)
 	defer zipWriter.Close()
@@ -231,21 +231,40 @@ func addDirToZip(dirPath, dirName string, zipWriter *zip.Writer) error {
 	})
 }
 
-func MultiDownload(c *gin.Context, basePath string) {
-	var body MultiDownloadType
-	if err := c.ShouldBind(&body); err == nil {
-		if body.Path == "" {
-			c.JSON(400, gin.H{
-				"ok":  false,
-				"msg": "Path parameter is required",
-			})
-		} else {
-			MultiDownloadHandler(c, basePath, body)
-		}
+func MultiDownload(c *gin.Context, basePath string, username string, password string) {
+
+	token := c.DefaultQuery("token", "")
+
+	if !TokenCheck(username, password, token) {
+		c.JSON(401, gin.H{
+			"ok":  false,
+			"msg": "Not authorized",
+		})
 		return
 	}
-	c.JSON(400, gin.H{
-		"ok":  false,
-		"msg": "Bad request",
-	})
+
+	data, err := url.QueryUnescape(c.Query("data"))
+	if err != nil {
+		c.JSON(400, gin.H{
+			"ok":  false,
+			"msg": "Invalid path parameter",
+		})
+		return
+	}
+	if len(data) == 0 {
+		c.JSON(400, gin.H{
+			"ok":  false,
+			"msg": "Data parameter is required",
+		})
+		return
+	}
+	var filesData MultiDownloadType
+
+	err = json.Unmarshal([]byte(data), &filesData)
+	if err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return
+	}
+
+	MultiDownloadHandler(c, basePath, filesData)
 }

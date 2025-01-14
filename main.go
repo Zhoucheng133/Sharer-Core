@@ -77,7 +77,7 @@ func main() {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
 			utils.Download(c, basePath, username, password)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, basePath)
+			utils.MultiDownload(c, basePath, username, password)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
