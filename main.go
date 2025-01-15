@@ -33,8 +33,10 @@ func requestMiddleware(username string, password string) gin.HandlerFunc {
 			strings.HasPrefix(c.Request.URL.Path, "/api/download"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
+			// 这些操作将token写在URL param中
 			c.Next()
 		default:
+			// 其余操作token写在header中
 			if utils.TokenCheck(username, password, c.GetHeader("token")) {
 				c.Next()
 			} else {
@@ -70,6 +72,8 @@ func main() {
 			utils.GetList(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
 			utils.Upload(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
+			utils.DelRequest(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
