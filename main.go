@@ -60,7 +60,7 @@ func main() {
 	password := "123456"
 	// useAuth := true
 	// 如果username=="" && password==""表明不需要验证
-	basePath := "/Users/zhoucheng/Desktop"
+	basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
 	// 所有路径请求path需要添加头/
