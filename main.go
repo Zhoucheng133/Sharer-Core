@@ -74,6 +74,8 @@ func main() {
 			utils.Upload(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
 			utils.DelRequest(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
+			utils.CreateFolder(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
