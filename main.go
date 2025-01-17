@@ -76,6 +76,8 @@ func main() {
 			utils.DelRequest(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
 			utils.CreateFolder(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
+			utils.Rename(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
