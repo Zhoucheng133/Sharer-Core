@@ -78,6 +78,8 @@ func main() {
 			utils.CreateFolder(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
 			utils.Rename(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
+			utils.Upload(c, basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
