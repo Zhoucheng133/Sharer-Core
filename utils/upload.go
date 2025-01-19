@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -8,6 +9,16 @@ import (
 )
 
 func Upload(c *gin.Context, basePath string) {
+	relativePath, err := url.QueryUnescape(c.DefaultQuery("path", ""))
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"ok":  false,
+			"msg": "Unable to parse path",
+		})
+		return
+	}
+
 	form, err := c.MultipartForm()
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -33,10 +44,7 @@ func Upload(c *gin.Context, basePath string) {
 		return
 	}
 	for _, file := range files {
-		// 构建文件存储路径
-		dst := filepath.Join(basePath, file.Filename)
-
-		// 保存文件到指定路径
+		dst := filepath.Join(basePath, relativePath, file.Filename)
 		err := c.SaveUploadedFile(file, dst)
 		if err != nil {
 			c.JSON(400, gin.H{
