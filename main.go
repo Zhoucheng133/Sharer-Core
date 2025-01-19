@@ -55,6 +55,13 @@ var staticFiles embed.FS
 
 func main() {
 
+	// -->参数<--
+	// -port 8080				端口
+	// -d /Users/admin/desktop	路径
+	// -u admin					用户 (可以忽略)
+	// -p 123456				密码 (可以忽略，如果-u值存在则不能忽略)
+	// -->参数结束<--
+
 	// -->测试代码<---
 	username := "admin"
 	password := "123456"
