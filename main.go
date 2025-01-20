@@ -77,6 +77,8 @@ func main() {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
 			utils.GetList(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/uploadFolder"):
+			utils.UploadFolder(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
 			utils.Upload(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
@@ -87,6 +89,7 @@ func main() {
 			utils.Rename(c, basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
 			utils.Upload(c, basePath)
+
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
