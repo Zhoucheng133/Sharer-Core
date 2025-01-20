@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -8,6 +9,14 @@ import (
 )
 
 func UploadFolder(c *gin.Context, basePath string) {
+	path, err := url.QueryUnescape(c.DefaultQuery("path", ""))
+	if err != nil {
+		c.JSON(400, gin.H{
+			"ok":  false,
+			"msg": "Unable to parse path",
+		})
+		return
+	}
 	form, err := c.MultipartForm()
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -31,7 +40,7 @@ func UploadFolder(c *gin.Context, basePath string) {
 		file := files[i]
 		relativePath := relativePaths[i]
 		// fullPath := basePath + relativePath
-		fullPath := filepath.Join(basePath, relativePath)
+		fullPath := filepath.Join(basePath, path, relativePath)
 		dir := filepath.Dir(fullPath)
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			c.JSON(500, gin.H{
