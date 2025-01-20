@@ -61,50 +61,15 @@ func Download(c *gin.Context, basePath string, username string, password string)
 		c.Header("Content-Type", "application/zip")
 		zipWriter := zip.NewWriter(c.Writer)
 		defer zipWriter.Close()
-		err := filepath.Walk(decodedPath, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			// 跳过根目录自身
-			if path == decodedPath {
-				return nil
-			}
-
-			relativePath, err := filepath.Rel(decodedPath, path)
-			if err != nil {
-				return err
-			}
-
-			// 为每个文件创建一个新的 ZIP 条目
-			zipEntry, err := zipWriter.Create(relativePath)
-			if err != nil {
-				return err
-			}
-
-			// 打开文件并将其内容写入 ZIP 条目
-			if !info.IsDir() {
-				file, err := os.Open(path)
-				if err != nil {
-					return err
-				}
-				defer file.Close()
-
-				// 将文件数据写入到 zipEntry
-				_, err = io.Copy(zipEntry, file)
-				if err != nil {
-					return err
-				}
-			}
-			return nil
-		})
+		err := addDirToZip(decodedPath, url.QueryEscape(filepath.Base(decodedPath)), zipWriter)
 		if err != nil {
+			c.Header("Content-Type", "application/json")
 			c.JSON(500, gin.H{
 				"ok":  false,
-				"msg": fmt.Sprintf("Failed to add files to zip: %v", err),
+				"msg": "Failed to add directory",
 			})
 			return
 		}
-		return
 	}
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.QueryEscape(filepath.Base(decodedPath))))
 	c.File(decodedPath)
