@@ -58,6 +58,8 @@ var staticFiles embed.FS
 
 func main() {
 
+	gin.SetMode(gin.ReleaseMode)
+
 	// -->参数<--
 	// -port 8080				端口
 	// -d /Users/admin/desktop	路径
@@ -133,6 +135,6 @@ func main() {
 		}
 	})
 
-	// r.Run(":8080")
+	fmt.Println(fmt.Sprint("服务运行在: \n➜ http://", utils.GetIp(), ":", *port, "\n➜ http://127.0.0.1:", *port))
 	r.Run(fmt.Sprint(":", *port))
 }
