@@ -13,20 +13,6 @@ import (
 
 func requestMiddleware(username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		// -->允许跨域内容，开始<--
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, token")
-		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Disposition, File-Name")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		// -->允许跨域内容，结束<--
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(200)
-			return
-		}
-
 		switch {
 		case !strings.HasPrefix(c.Request.URL.Path, "/api"):
 			c.Next()
