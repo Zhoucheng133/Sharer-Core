@@ -6,14 +6,15 @@
 
 这是一个用于在PC/Mac上的文件分享工具，可以将PC/Mac作为文件共享服务器
 
-子模块（Web页面）[在这里](https://github.com/Zhoucheng133/Sharer-Web)
+
+> [!NOTE]
+> 这是一个二进制文件的仓库，如果你要查找有GUI界面的App，请前往[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)，如果你要查找网页的源代码请前往[Sharer-Web](https://github.com/Zhoucheng133/Sharer-Web)
 
 ✅ 打包目录下载  
 ✅ 多文件下载  
 ✅ 上传本地目录  
 ✅ 添加访问用户名和密码  
 ✅ 在线预览各种常见格式  
-⏳ 将会在之后添加UI界面 (在另外的仓库中实现)
 
 ## 目录
 - [简介](#简介)
