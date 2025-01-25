@@ -10,6 +10,9 @@
 > [!NOTE]
 > 这是一个二进制文件的仓库，如果你要查找有GUI界面的App，请前往[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)，如果你要查找网页的源代码请前往[Sharer-Web](https://github.com/Zhoucheng133/Sharer-Web)
 
+> [!IMPORTANT]
+> 有一定概率会被Windows Defender识别为病毒，但是程序本身没有问题
+
 ✅ 打包目录下载  
 ✅ 多文件下载  
 ✅ 上传本地目录  
