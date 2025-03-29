@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -31,31 +32,19 @@ func StaticHandler(c *gin.Context, f embed.FS) {
 }
 
 func DynamicLibStaticHandler(c *gin.Context, basePath string) {
-	path := c.Request.URL.Path
-	if path == "" || path == "/" || strings.HasPrefix(path, "/login") {
-		path = filepath.Join(basePath, "index.html")
-	} else {
-		path = filepath.Join(basePath, path)
+	path := strings.TrimPrefix(c.Request.URL.Path, "/")
+	if path == "" || path == "/" || strings.HasPrefix(path, "login") {
+		path = "index.html"
 	}
 
-	// 打开文件
-	file, err := http.Dir(basePath).Open(path)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("File not found: %s", path)})
+	fullPath := filepath.Join(basePath, path)
+
+	// 检查文件是否存在
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "File not found: " + fullPath})
 		return
 	}
-	defer file.Close()
 
-	// 解析文件类型
-	ext := filepath.Ext(path)
-	contentType := mime.TypeByExtension(ext)
-	if contentType == "" {
-		contentType = "application/octet-stream" // 默认类型
-	}
-
-	// 设置响应头
-	c.Header("Content-Type", contentType)
-
-	// 读取文件数据并返回
-	c.File(path)
+	// 直接返回文件
+	c.File(fullPath)
 }
