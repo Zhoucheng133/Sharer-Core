@@ -1,6 +1,7 @@
 package main
 
 import (
+	"C"
 	"embed"
 	"flag"
 	"fmt"
@@ -8,8 +9,82 @@ import (
 	"sharer-core/utils"
 	"strings"
 
+	"net/http"
+	"sync"
+
 	"github.com/gin-gonic/gin"
 )
+
+var (
+	server   *http.Server
+	stopChan chan struct{}
+	wg       sync.WaitGroup
+)
+
+//export StartServer
+func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char, webPath *C.char) {
+	r := gin.New()
+	r.Use(requestMiddleware(C.GoString(username), C.GoString(password)))
+	r.POST("/*path", func(c *gin.Context) {
+		switch {
+		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
+			utils.GetList(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/uploadFolder"):
+			utils.UploadFolder(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
+			utils.Upload(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
+			utils.DelRequest(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
+			utils.CreateFolder(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
+			utils.Rename(c, C.GoString(basePath))
+
+		}
+	})
+	r.GET("/*path", func(c *gin.Context) {
+		switch {
+		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
+			utils.GetRaw(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
+			utils.Download(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
+			utils.MultiDownload(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
+			utils.Login(c)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
+			utils.Auth(c, C.GoString(username), C.GoString(password))
+		default:
+			utils.DynamicLibStaticHandler(c, C.GoString(webPath))
+		}
+	})
+	server = &http.Server{
+		Addr:    ":" + C.GoString(port),
+		Handler: r,
+	}
+
+	stopChan = make(chan struct{})
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		}
+	}()
+
+	<-stopChan
+
+	if err := server.Close(); err != nil {
+		fmt.Println("Error closing server:", err)
+	}
+}
+
+//export StopServer
+func StopServer() {
+	if stopChan != nil {
+		close(stopChan)
+		wg.Wait()
+	}
+}
 
 func requestMiddleware(username string, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
