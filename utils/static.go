@@ -33,9 +33,9 @@ func StaticHandler(c *gin.Context, f embed.FS) {
 func DynamicLibStaticHandler(c *gin.Context, basePath string) {
 	path := c.Request.URL.Path
 	if path == "" || path == "/" || strings.HasPrefix(path, "/login") {
-		path = filepath.Join(basePath, "Sharer-Web/dist/index.html")
+		path = filepath.Join(basePath, "index.html")
 	} else {
-		path = filepath.Join(basePath, "Sharer-Web/dist", path)
+		path = filepath.Join(basePath, path)
 	}
 
 	// 打开文件
