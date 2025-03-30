@@ -7,11 +7,11 @@
 这是一个用于在PC/Mac上的文件分享工具，可以将PC/Mac作为文件共享服务器
 
 
-> [!NOTE]
+> [!IMPORTANT]
 > 这是一个二进制文件的仓库，如果你要查找有GUI界面的App，请前往[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)，如果你要查找网页的源代码请前往[Sharer-Web](https://github.com/Zhoucheng133/Sharer-Web)
 
-> [!IMPORTANT]
-> 有一定概率会被Windows Defender识别为病毒，但是程序本身没有问题，如果你很介意可以在你的设备上自行配置（这种情况一般不会误报）
+> [!NOTE]
+> 你可以单独[使用](#使用)它，但是更建议使用[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)
 
 ✅ 打包目录下载  
 ✅ 多文件下载  
@@ -24,8 +24,7 @@
 - [目录](#目录)
 - [截图](#截图)
 - [使用](#使用)
-- [在你的设备上配置Sharer](#在你的设备上配置sharer)
-- [更新日志](#更新日志)
+- [构建](#构建)
 
 ## 截图
 
@@ -78,7 +77,7 @@
 
 注意只输入用户名或者只输入密码不会运行服务
 
-## 在你的设备上配置Sharer
+## 构建
 
 ### 准备
 
@@ -86,7 +85,7 @@
 - bun
 - go
 
-### 配置
+### 生成二进制文件
 
 1. 你需要先克隆或者下载本仓库
 2. 在仓库中执行此命令下载子模块:
@@ -98,14 +97,29 @@
    cd Sharer-Web
    bun run build
    ```
-4. 如果完成了你就可以执行程序了
+4. 生成二进制文件
    ```bash
    cd .. #回到仓库根目录
    go run . #运行程序
    go build #打包
    ```
 
-## 更新日志
+### 生成动态库供[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)使用或二次开发
 
-### 1.0.0 (2025/1/21)
-- 第一个版本
+1. 你需要先克隆或者下载本仓库
+2. 在仓库中执行此命令下载子模块:
+   ```bash
+   git submodule update --init --recursive
+   ```
+3. 生成Web页面
+   ```bash
+   cd Sharer-Web
+   bun run build
+   ```
+4. 生成动态库
+   ```bash
+   cd .. #回到仓库根目录
+   go run . #运行程序
+   go build -buildmode=c-shared -o libserver.dll .    # 生成macOS动态库
+   go build -buildmode=c-shared -o libserver.dylib .  # 生成macOS动态库
+   ```
