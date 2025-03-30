@@ -119,7 +119,6 @@
 4. 生成动态库
    ```bash
    cd .. #回到仓库根目录
-   go run . #运行程序
    go build -buildmode=c-shared -o libserver.dll .    # 生成macOS动态库
    go build -buildmode=c-shared -o libserver.dylib .  # 生成macOS动态库
    ```
