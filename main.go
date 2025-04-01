@@ -159,6 +159,12 @@ func main() {
 
 	// 所有路径请求path需要添加头/
 	r := gin.New()
+	// 允许跨域?
+	// r.Use(cors.New(cors.Config{
+	// 	AllowAllOrigins: true,
+	// 	AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
+	// 	AllowHeaders:    []string{"*"},
+	// }))
 	r.Use(requestMiddleware(*username, *password))
 	r.POST("/*path", func(c *gin.Context) {
 		switch {
