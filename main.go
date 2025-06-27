@@ -22,7 +22,7 @@ var (
 )
 
 //export StartServer
-func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char, webPath *C.char) {
+func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char) {
 	r := gin.New()
 	r.Use(requestMiddleware(C.GoString(username), C.GoString(password)))
 	r.POST("/*path", func(c *gin.Context) {
@@ -55,7 +55,7 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
 			utils.Auth(c, C.GoString(username), C.GoString(password))
 		default:
-			utils.DynamicLibStaticHandler(c, C.GoString(webPath))
+			utils.StaticHandler(c, staticFiles)
 		}
 	})
 	server = &http.Server{
