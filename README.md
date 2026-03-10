@@ -118,7 +118,8 @@
    ```
 4. 生成动态库
    ```bash
-   cd .. #回到仓库根目录
-   go build -buildmode=c-shared -o build/libserver.dll .    # 生成Windows动态库
-   go build -buildmode=c-shared -o build/libserver.dylib .  # 生成macOS动态库
+   #  macOS
+   go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dylib
+   # Windows
+   go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dll
    ```
