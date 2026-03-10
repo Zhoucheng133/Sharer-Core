@@ -227,7 +227,6 @@ func MultiDownload(c *gin.Context, basePath string, username string, password st
 
 	err = json.Unmarshal([]byte(data), &filesData)
 	if err != nil {
-		fmt.Println("Error parsing JSON:", err)
 		return
 	}
 

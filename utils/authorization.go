@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ func TokenCheck(username string, password string, token string) bool {
 }
 
 func Login(c *gin.Context) {
+	fmt.Println("here!")
 	c.JSON(200, gin.H{
 		"ok":  true,
 		"msg": "",

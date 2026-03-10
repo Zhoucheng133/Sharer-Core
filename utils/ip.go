@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -10,7 +9,6 @@ import (
 func GetIp() string {
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Println("Error getting interfaces:", err)
 		os.Exit(1)
 	}
 	for _, iface := range interfaces {
@@ -22,7 +20,6 @@ func GetIp() string {
 		// 获取该接口的所有地址
 		addresses, err := iface.Addrs()
 		if err != nil {
-			fmt.Println("Error getting addresses:", err)
 			continue
 		}
 
