@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 var (
@@ -23,8 +24,14 @@ var (
 
 //export StartServer
 func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char) {
+
+	id, err := gonanoid.New()
+	if err != nil {
+		panic(err)
+	}
+
 	r := gin.New()
-	r.Use(requestMiddleware(C.GoString(username), C.GoString(password)))
+	r.Use(requestMiddleware(C.GoString(username), C.GoString(password), id))
 	r.POST("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
@@ -39,21 +46,22 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 			utils.CreateFolder(c, C.GoString(basePath))
 		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
 			utils.Rename(c, C.GoString(basePath))
-
+		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
+			utils.Login(c, C.GoString(username), C.GoString(password), id)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
+			utils.GetRaw(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
+			utils.Download(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, C.GoString(basePath), C.GoString(username), C.GoString(password))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
-			utils.Login(c)
+			utils.MultiDownload(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
 			utils.Auth(c, C.GoString(username), C.GoString(password))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
+			utils.TokenCheck(C.GoString(username), C.GoString(password), c.GetHeader("token"), id)
 		default:
 			utils.StaticHandler(c, staticFiles)
 		}
@@ -86,7 +94,7 @@ func StopServer() {
 	}
 }
 
-func requestMiddleware(username string, password string) gin.HandlerFunc {
+func requestMiddleware(username string, password string, secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		switch {
 		case !strings.HasPrefix(c.Request.URL.Path, "/api"):
@@ -96,12 +104,14 @@ func requestMiddleware(username string, password string) gin.HandlerFunc {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/download"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"),
-			strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
+			strings.HasPrefix(c.Request.URL.Path, "/api/raw"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/token"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			// 这些操作将token写在URL param中
 			c.Next()
 		default:
 			// 其余操作token写在header中
-			if utils.TokenCheck(username, password, c.GetHeader("token")) {
+			if utils.TokenCheck(username, password, c.GetHeader("token"), secret) {
 				c.Next()
 			} else {
 				c.JSON(401, gin.H{
@@ -136,16 +146,16 @@ func main() {
 	flag.Parse()
 
 	if *port == "" {
-		fmt.Println("缺少参数: -port，用于指定服务运行端口")
+		fmt.Println("缺少参数: -port, 用于指定服务运行端口")
 		os.Exit(1)
 	} else if *basePath == "" {
-		fmt.Println("缺少参数: -d，用于指定分享路径")
+		fmt.Println("缺少参数: -d, 用于指定分享路径")
 		os.Exit(1)
 	} else if *username != "" && *password == "" {
-		fmt.Println("缺少参数: -p，用于指定分享的密码")
+		fmt.Println("缺少参数: -p, 用于指定分享的密码")
 		os.Exit(1)
 	} else if *username == "" && *password != "" {
-		fmt.Println("缺少参数: -u，用于指定分享的用户名")
+		fmt.Println("缺少参数: -u, 用于指定分享的用户名")
 		os.Exit(1)
 	}
 
@@ -157,15 +167,13 @@ func main() {
 	// basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
-	// 所有路径请求path需要添加头/
+	id, err := gonanoid.New()
+	if err != nil {
+		panic(err)
+	}
+
 	r := gin.New()
-	// 允许跨域?
-	// r.Use(cors.New(cors.Config{
-	// 	AllowAllOrigins: true,
-	// 	AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
-	// 	AllowHeaders:    []string{"*"},
-	// }))
-	r.Use(requestMiddleware(*username, *password))
+	r.Use(requestMiddleware(*username, *password, id))
 	r.POST("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
@@ -180,20 +188,22 @@ func main() {
 			utils.CreateFolder(c, *basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
 			utils.Rename(c, *basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
+			utils.Login(c, *username, *password, id)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c, *basePath, *username, *password)
+			utils.GetRaw(c, *basePath, *username, *password, id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c, *basePath, *username, *password)
+			utils.Download(c, *basePath, *username, *password, id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, *basePath, *username, *password)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
-			utils.Login(c)
+			utils.MultiDownload(c, *basePath, *username, *password, id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
 			utils.Auth(c, *username, *password)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
+			utils.Token(c, *username, *password, c.GetHeader("token"), id)
 		default:
 			utils.StaticHandler(c, staticFiles)
 		}

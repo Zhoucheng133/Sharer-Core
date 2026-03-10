@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetRaw(c *gin.Context, basePath string, username string, password string) {
+func GetRaw(c *gin.Context, basePath string, username string, password string, secret string) {
 
 	token := c.DefaultQuery("token", "")
 
-	if !TokenCheck(username, password, token) {
+	if !TokenCheck(username, password, token, secret) {
 		c.JSON(401, gin.H{
 			"ok":  false,
 			"msg": "Not authorized",
