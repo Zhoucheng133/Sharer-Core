@@ -61,7 +61,7 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
 			utils.Auth(c, C.GoString(username), C.GoString(password))
 		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
-			utils.TokenCheck(C.GoString(username), C.GoString(password), c.GetHeader("token"), id)
+			utils.Token(c, C.GoString(username), C.GoString(password), c.GetHeader("token"), id)
 		default:
 			utils.StaticHandler(c, staticFiles)
 		}
