@@ -6,10 +6,6 @@
 
 这是一个用于在PC/Mac上的文件分享工具，可以将PC/Mac作为文件共享服务器
 
-
-> [!IMPORTANT]
-> 这是一个二进制文件的仓库，如果你要查找有GUI界面的App，请前往[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)，如果你要查找网页的源代码请前往[Sharer-Web](https://github.com/Zhoucheng133/Sharer-Web)
-
 > [!NOTE]
 > 你可以单独[使用](#使用)它，但是更建议使用[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)
 
