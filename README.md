@@ -1,5 +1,7 @@
 # Sharer (Core)
 
+Also available in English. Click [HERE](/documents/en.md) to view the English version of the README
+
 ## 简介
 
 ![License](https://img.shields.io/badge/License-MIT-dark_green)
@@ -95,9 +97,9 @@
    ```
 4. 生成二进制文件
    ```bash
-   cd .. #回到仓库根目录
-   go run . #运行程序
-   go build #打包
+   cd .. # 回到仓库根目录
+   go run . # 运行程序
+   go build # 打包
    ```
 
 ### 生成动态库供[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)使用或二次开发
@@ -114,6 +116,7 @@
    ```
 4. 生成动态库
    ```bash
+   cd .. # 回到仓库根目录
    #  macOS
    go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dylib
    # Windows
