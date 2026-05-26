@@ -24,6 +24,7 @@ var (
 
 //export StartServer
 func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char) {
+	gin.SetMode(gin.ReleaseMode)
 
 	id, err := gonanoid.New()
 	if err != nil {
