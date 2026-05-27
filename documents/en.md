@@ -82,6 +82,10 @@ Ensure the following tools are installed and configured on your device:
 
 ### Generate Binary File
 
+> [!NOTE]
+> Go 1.25+ Users: If you get a `This app can’t run on your PC` error, disable DWARFv5 by running this command before building:  
+> `go env -w GOEXPERIMENT=nodwarf5`
+
 1. Clone or download this repository first.
 2. Run this command in the repository to download submodules:
    ```bash

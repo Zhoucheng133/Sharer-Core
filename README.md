@@ -85,6 +85,11 @@ Also available in English. Click [HERE](/documents/en.md) to view the English ve
 
 ### 生成二进制文件
 
+> [!NOTE]
+> 如果你使用Go v1.25或更高版本，可能会出现`无法在你的电脑上运行`  
+> 如果你出现了这个提示，在`build`之前运行此命令:  
+> `go env -w GOEXPERIMENT=nodwarf5`
+
 1. 你需要先克隆或者下载本仓库
 2. 在仓库中执行此命令下载子模块:
    ```bash
