@@ -7,7 +7,7 @@
 A file-sharing tool for PC/Mac that allows you to turn your computer into a file-sharing server.
 
 > [!NOTE]
-> You can use it [standalone](#usage), but it is highly recommended to use it with [Sharer-App](https://github.com/Zhoucheng133/Sharer-App).
+> You can use it [standalone](#usage), but it is highly recommended to use it with [Sharer-App](https://github.com/Zhoucheng133/Sharer-App) (For Windows & macOS) or [Sharer-Mobile](https://github.com/Zhoucheng133/Sharer-Mobile) (For iOS & Android).
 
 ✅ Packaged directory downloads  
 ✅ Multi-file downloads  
@@ -118,8 +118,27 @@ Ensure the following tools are installed and configured on your device:
 4. Generate the dynamic library
    ```bash
    cd .. # Return to the repository root
+
    #  macOS
    go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dylib
+
    # Windows
    go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dll
+
+   # Android (From Windows)
+   $env:NDK_PATH=/path/to/your/android-ndk
+   $env:CC="$env:NDK_PATH\toolchains\llvm\prebuilt\windows-x86_64\bin\aarch64-linux-android30-clang.cmd"
+   $env:CGO_ENABLED="1"
+   $env:GOOS="android"
+   $env:GOARCH="arm64"
+   go build -buildmode=c-shared -o build/libserver.so
+
+   # Android (From Mac)
+   export NDK_PATH=/path/to/your/android-ndk
+   export CC_PATH=$NDK_PATH/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android30-clang
+   CGO_ENABLED=1 \
+   GOOS=android \
+   GOARCH=arm64 \
+   CC=$CC_PATH \
+   go build -buildmode=c-shared -o build/libserver.so
    ```

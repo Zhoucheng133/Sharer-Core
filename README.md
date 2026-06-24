@@ -9,7 +9,7 @@ Also available in English. Click [HERE](/documents/en.md) to view the English ve
 这是一个用于在PC/Mac上的文件分享工具，可以将PC/Mac作为文件共享服务器
 
 > [!NOTE]
-> 你可以单独[使用](#使用)它，但是更建议使用[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)
+> 你可以单独[使用](#使用)它，但是更建议使用[Sharer-App](https://github.com/Zhoucheng133/Sharer-App)(桌面端) 或者[Sharer-Mobile](https://github.com/Zhoucheng133/Sharer-Mobile)(移动端)
 
 ✅ 打包目录下载  
 ✅ 多文件下载  
@@ -85,11 +85,6 @@ Also available in English. Click [HERE](/documents/en.md) to view the English ve
 
 ### 生成二进制文件
 
-> [!NOTE]
-> 如果你使用Go v1.25或更高版本，可能会出现`无法在你的电脑上运行`  
-> 如果你出现了这个提示，在`build`之前运行此命令:  
-> `go env -w GOEXPERIMENT=nodwarf5`
-
 1. 你需要先克隆或者下载本仓库
 2. 在仓库中执行此命令下载子模块:
    ```bash
@@ -122,8 +117,31 @@ Also available in English. Click [HERE](/documents/en.md) to view the English ve
 4. 生成动态库
    ```bash
    cd .. # 回到仓库根目录
+
    #  macOS
    go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dylib
+
    # Windows
    go build -buildmode=c-shared -ldflags="-s -w" -o build/libserver.dll
+
+   # iOS
+   chmod +x build_ios.sh
+   ./build_ios.sh
+
+   # Android (From Windows)
+   $env:NDK_PATH=/path/to/your/android-ndk
+   $env:CC="$env:NDK_PATH\toolchains\llvm\prebuilt\windows-x86_64\bin\aarch64-linux-android30-clang.cmd"
+   $env:CGO_ENABLED="1"
+   $env:GOOS="android"
+   $env:GOARCH="arm64"
+   go build -buildmode=c-shared -o build/libserver.so
+
+   # Android (From Mac)
+   export NDK_PATH=/path/to/your/android-ndk
+   export CC_PATH=$NDK_PATH/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android30-clang
+   CGO_ENABLED=1 \
+   GOOS=android \
+   GOARCH=arm64 \
+   CC=$CC_PATH \
+   go build -buildmode=c-shared -o build/libserver.so
    ```
