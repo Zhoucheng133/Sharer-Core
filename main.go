@@ -49,6 +49,10 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 			utils.Rename(c, C.GoString(basePath))
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c, C.GoString(username), C.GoString(password), id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/copy"):
+			utils.Copy(c, C.GoString(basePath))
+		case strings.HasPrefix(c.Request.URL.Path, "/api/move"):
+			utils.Move(c, C.GoString(basePath))
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
@@ -191,6 +195,10 @@ func main() {
 			utils.Rename(c, *basePath)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			utils.Login(c, *username, *password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/copy"):
+			utils.Copy(c, *basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/move"):
+			utils.Move(c, *basePath)
 		}
 	})
 	r.GET("/*path", func(c *gin.Context) {
