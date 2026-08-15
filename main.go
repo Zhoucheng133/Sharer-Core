@@ -17,13 +17,19 @@ import (
 )
 
 var (
-	server   *http.Server
-	stopChan chan struct{}
-	wg       sync.WaitGroup
+	server *http.Server
+	lock   sync.Mutex
 )
 
 //export StartServer
 func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.char) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if server != nil {
+		return
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 
 	id, err := gonanoid.New()
@@ -71,32 +77,29 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 			utils.StaticHandler(c, staticFiles)
 		}
 	})
-	server = &http.Server{
+	srv := &http.Server{
 		Addr:    ":" + C.GoString(port),
 		Handler: r,
 	}
 
-	stopChan = make(chan struct{})
-	wg.Add(1)
+	server = srv
+
 	go func() {
-		defer wg.Done()
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		}
 	}()
-
-	<-stopChan
-
-	if err := server.Close(); err != nil {
-		fmt.Println("Error closing server:", err)
-	}
 }
 
 //export StopServer
 func StopServer() {
-	if stopChan != nil {
-		close(stopChan)
-		wg.Wait()
+	lock.Lock()
+	defer lock.Unlock()
+	if server == nil {
+		return
 	}
+
+	server.Close()
+	server = nil
 }
 
 func requestMiddleware(username string, password string, secret string) gin.HandlerFunc {
