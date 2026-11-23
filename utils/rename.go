@@ -26,6 +26,16 @@ func Rename(c *gin.Context, basePath string) {
 	}
 	oldPath := filepath.Join(basePath, reqBody.Path, reqBody.OldName)
 	newPath := filepath.Join(basePath, reqBody.Path, reqBody.NewName)
+
+	// 目标名称已存在时直接阻止，避免 os.Rename 在部分平台上覆盖同名文件。
+	if _, err := os.Lstat(newPath); err == nil {
+		c.JSON(200, gin.H{
+			"ok":  false,
+			"msg": "A file or directory with the new name already exists",
+		})
+		return
+	}
+
 	err := os.Rename(oldPath, newPath)
 	if err != nil {
 		c.JSON(200, gin.H{
