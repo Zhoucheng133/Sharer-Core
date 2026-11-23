@@ -30,58 +30,7 @@ func StartServer(port *C.char, basePath *C.char, username *C.char, password *C.c
 		return
 	}
 
-	gin.SetMode(gin.ReleaseMode)
-
-	id, err := gonanoid.New()
-	if err != nil {
-		panic(err)
-	}
-
-	r := gin.New()
-	r.Use(requestMiddleware(C.GoString(username), C.GoString(password), id))
-	r.POST("/*path", func(c *gin.Context) {
-		switch {
-		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
-			utils.GetList(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/uploadFolder"):
-			utils.UploadFolder(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
-			utils.Upload(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
-			utils.DelRequest(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
-			utils.CreateFolder(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
-			utils.Rename(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
-			utils.Login(c, C.GoString(username), C.GoString(password), id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/copy"):
-			utils.Copy(c, C.GoString(basePath))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/move"):
-			utils.Move(c, C.GoString(basePath))
-		}
-	})
-	r.GET("/*path", func(c *gin.Context) {
-		switch {
-		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, C.GoString(basePath), C.GoString(username), C.GoString(password), id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
-			utils.Auth(c, C.GoString(username), C.GoString(password))
-		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
-			utils.Token(c, C.GoString(username), C.GoString(password), c.GetHeader("token"), id)
-		default:
-			utils.StaticHandler(c, staticFiles)
-		}
-	})
-	srv := &http.Server{
-		Addr:    ":" + C.GoString(port),
-		Handler: r,
-	}
-
+	srv := newServer(C.GoString(port), C.GoString(basePath), C.GoString(username), C.GoString(password))
 	server = srv
 
 	go func() {
@@ -135,10 +84,63 @@ func requestMiddleware(username string, password string, secret string) gin.Hand
 //go:embed Sharer-Web/dist/*
 var staticFiles embed.FS
 
-func main() {
-
+// newServer 创建 gin 服务，主函数和动态库共用，参数以普通字符串传入
+func newServer(port, basePath, username, password string) *http.Server {
 	gin.SetMode(gin.ReleaseMode)
 
+	id, err := gonanoid.New()
+	if err != nil {
+		panic(err)
+	}
+
+	r := gin.New()
+	r.Use(requestMiddleware(username, password, id))
+	r.POST("/*path", func(c *gin.Context) {
+		switch {
+		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
+			utils.GetList(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/uploadFolder"):
+			utils.UploadFolder(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
+			utils.Upload(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
+			utils.DelRequest(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
+			utils.CreateFolder(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
+			utils.Rename(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
+			utils.Login(c, username, password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/copy"):
+			utils.Copy(c, basePath)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/move"):
+			utils.Move(c, basePath)
+		}
+	})
+	r.GET("/*path", func(c *gin.Context) {
+		switch {
+		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
+			utils.GetRaw(c, basePath, username, password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
+			utils.Download(c, basePath, username, password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
+			utils.MultiDownload(c, basePath, username, password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
+			utils.Auth(c, username, password)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
+			utils.Token(c, username, password, c.GetHeader("token"), id)
+		default:
+			utils.StaticHandler(c, staticFiles)
+		}
+	})
+
+	return &http.Server{
+		Addr:    ":" + port,
+		Handler: r,
+	}
+}
+
+func main() {
 	// -->参数<--
 	// -port 8080				端口
 	// -d /Users/admin/desktop	路径
@@ -175,52 +177,8 @@ func main() {
 	// basePath := "/Users/zhoucheng/Downloads"
 	//-->测试结束<--
 
-	id, err := gonanoid.New()
-	if err != nil {
-		panic(err)
-	}
-
-	r := gin.New()
-	r.Use(requestMiddleware(*username, *password, id))
-	r.POST("/*path", func(c *gin.Context) {
-		switch {
-		case strings.HasPrefix(c.Request.URL.Path, "/api/list"):
-			utils.GetList(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/uploadFolder"):
-			utils.UploadFolder(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/upload"):
-			utils.Upload(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/del"):
-			utils.DelRequest(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/mkdir"):
-			utils.CreateFolder(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/rename"):
-			utils.Rename(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/login"):
-			utils.Login(c, *username, *password, id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/copy"):
-			utils.Copy(c, *basePath)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/move"):
-			utils.Move(c, *basePath)
-		}
-	})
-	r.GET("/*path", func(c *gin.Context) {
-		switch {
-		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
-			utils.GetRaw(c, *basePath, *username, *password, id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
-			utils.Download(c, *basePath, *username, *password, id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):
-			utils.MultiDownload(c, *basePath, *username, *password, id)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/auth"):
-			utils.Auth(c, *username, *password)
-		case strings.HasPrefix(c.Request.URL.Path, "/api/token"):
-			utils.Token(c, *username, *password, c.GetHeader("token"), id)
-		default:
-			utils.StaticHandler(c, staticFiles)
-		}
-	})
+	srv := newServer(*port, *basePath, *username, *password)
 
 	fmt.Println(fmt.Sprint("服务运行在: \n➜ http://", utils.GetIp(), ":", *port, "\n➜ http://127.0.0.1:", *port))
-	r.Run(fmt.Sprint(":", *port))
+	srv.ListenAndServe()
 }
