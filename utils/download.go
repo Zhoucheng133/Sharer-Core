@@ -22,7 +22,7 @@ func Download(c *gin.Context, basePath string, username string, password string,
 	token := c.DefaultQuery("token", "")
 
 	if !TokenCheck(username, password, token, secret) {
-		c.JSON(401, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Not authorized",
 		})
@@ -31,7 +31,7 @@ func Download(c *gin.Context, basePath string, username string, password string,
 
 	rawPath := c.DefaultQuery("path", "")
 	if rawPath == "" {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Path parameter is required",
 		})
@@ -40,7 +40,7 @@ func Download(c *gin.Context, basePath string, username string, password string,
 	decodedPath, err := url.QueryUnescape(rawPath)
 	decodedPath = basePath + "/" + decodedPath
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": fmt.Sprintf("Invalid path: %v", err),
 		})
@@ -48,7 +48,7 @@ func Download(c *gin.Context, basePath string, username string, password string,
 	}
 	file, err := os.Open(decodedPath)
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "File not found",
 		})
@@ -64,7 +64,7 @@ func Download(c *gin.Context, basePath string, username string, password string,
 		err := addDirToZip(decodedPath, url.QueryEscape(filepath.Base(decodedPath)), zipWriter)
 		if err != nil {
 			c.Header("Content-Type", "application/json")
-			c.JSON(500, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Failed to add directory",
 			})
@@ -84,7 +84,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 		filePath := filepath.Join(path, fileName)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			c.Header("Content-Type", "application/json")
-			c.JSON(404, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": fmt.Sprintf("File or directory %s does not exist", fileName),
 			})
@@ -106,7 +106,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 		// 检查文件或目录是否存在
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			c.Header("Content-Type", "application/json")
-			c.JSON(404, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": fmt.Sprintf("File or directory %s does not exist", fileName),
 			})
@@ -116,7 +116,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 		info, err := os.Stat(filePath)
 		if err != nil {
 			c.Header("Content-Type", "application/json")
-			c.JSON(500, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": fmt.Sprintf("Unable to stat file %s", fileName),
 			})
@@ -127,7 +127,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 			err := addFileToZip(filePath, fileName, zipWriter)
 			if err != nil {
 				c.Header("Content-Type", "application/json")
-				c.JSON(500, gin.H{
+				c.JSON(200, gin.H{
 					"ok":  false,
 					"msg": fmt.Sprintf("Failed to add file %s", fileName),
 				})
@@ -138,7 +138,7 @@ func MultiDownloadHandler(c *gin.Context, basePath string, data MultiDownloadTyp
 			err := addDirToZip(filePath, fileName, zipWriter)
 			if err != nil {
 				c.Header("Content-Type", "application/json")
-				c.JSON(500, gin.H{
+				c.JSON(200, gin.H{
 					"ok":  false,
 					"msg": fmt.Sprintf("Failed to add directory %s", fileName),
 				})
@@ -201,7 +201,7 @@ func MultiDownload(c *gin.Context, basePath string, username string, password st
 	token := c.DefaultQuery("token", "")
 
 	if !TokenCheck(username, password, token, secret) {
-		c.JSON(401, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Not authorized",
 		})
@@ -210,14 +210,14 @@ func MultiDownload(c *gin.Context, basePath string, username string, password st
 
 	data, err := url.QueryUnescape(c.Query("data"))
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Invalid path parameter",
 		})
 		return
 	}
 	if len(data) == 0 {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Data parameter is required",
 		})
@@ -227,6 +227,10 @@ func MultiDownload(c *gin.Context, basePath string, username string, password st
 
 	err = json.Unmarshal([]byte(data), &filesData)
 	if err != nil {
+		c.JSON(200, gin.H{
+			"ok":  false,
+			"msg": "Invalid data parameter",
+		})
 		return
 	}
 

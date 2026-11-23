@@ -14,7 +14,7 @@ type DelBody struct {
 
 func delHandler(c *gin.Context, data DelBody) {
 	if _, err := os.Stat(data.Path); os.IsNotExist(err) {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Path not found",
 		})
@@ -25,7 +25,7 @@ func delHandler(c *gin.Context, data DelBody) {
 
 		// 删除文件或文件夹
 		if err := os.RemoveAll(fullPath); err != nil {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "failed to delete file or directory",
 			})
@@ -42,7 +42,7 @@ func DelRequest(c *gin.Context, basePath string) {
 	var reqBody DelBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		if reqBody.Path == "" || len(reqBody.Files) == 0 {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Parameter illegal",
 			})

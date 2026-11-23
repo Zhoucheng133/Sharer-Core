@@ -20,7 +20,10 @@ func StaticHandler(c *gin.Context, f embed.FS) {
 	}
 	file, err := f.Open(path)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("File not found: %s", path)})
+		c.JSON(200, gin.H{
+			"ok":  false,
+			"msg": fmt.Sprintf("File not found: %s", path),
+		})
 		return
 	}
 	defer file.Close()

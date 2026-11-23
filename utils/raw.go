@@ -14,7 +14,7 @@ func resolveFilePath(c *gin.Context, basePath string, username string, password 
 	token := c.DefaultQuery("token", "")
 
 	if !TokenCheck(username, password, token, secret) {
-		c.JSON(401, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Not authorized",
 		})
@@ -23,7 +23,7 @@ func resolveFilePath(c *gin.Context, basePath string, username string, password 
 
 	rawPath := c.DefaultQuery("path", "")
 	if rawPath == "" {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Path parameter is required",
 		})
@@ -32,7 +32,7 @@ func resolveFilePath(c *gin.Context, basePath string, username string, password 
 	decodedPath, err := url.QueryUnescape(rawPath)
 	decodedPath = basePath + "/" + decodedPath
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": fmt.Sprintf("Invalid path: %v", err),
 		})
@@ -40,7 +40,7 @@ func resolveFilePath(c *gin.Context, basePath string, username string, password 
 	}
 	file, err := os.Open(decodedPath)
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "File not found",
 		})
@@ -49,14 +49,14 @@ func resolveFilePath(c *gin.Context, basePath string, username string, password 
 	defer file.Close()
 	fileInfo, err := file.Stat()
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "File not found",
 		})
 		return "", false
 	}
 	if fileInfo.IsDir() {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "The path is a directory",
 		})

@@ -63,7 +63,7 @@ func GetList(c *gin.Context, basePath string) {
 
 	if err := c.ShouldBind(&body); err == nil {
 		if body.Path == "" {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Path parameter is required",
 			})
@@ -72,7 +72,7 @@ func GetList(c *gin.Context, basePath string) {
 		}
 		return
 	}
-	c.JSON(400, gin.H{
+	c.JSON(200, gin.H{
 		"ok":  false,
 		"msg": "Bad request",
 	})

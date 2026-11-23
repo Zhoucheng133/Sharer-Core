@@ -17,13 +17,13 @@ func createHandler(path string, name string, c *gin.Context) {
 	err := os.Mkdir(dirPath, 0777)
 	if err != nil {
 		if os.IsExist(err) {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Directory exists",
 			})
 			return
 		} else {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Create failed",
 			})
@@ -40,7 +40,7 @@ func CreateFolder(c *gin.Context, basePath string) {
 	var reqBody FolderBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		if reqBody.Path == "" || reqBody.Name == "" {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Parameter illegal",
 			})

@@ -66,7 +66,7 @@ func Copy(c *gin.Context, basePath string) {
 	var reqBody CopyMoveBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		if reqBody.From == "" || len(reqBody.Files) == 0 || reqBody.To == "" {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Parameter illegal",
 			})
@@ -78,7 +78,7 @@ func Copy(c *gin.Context, basePath string) {
 	dstBase := filepath.Join(basePath, reqBody.To)
 
 	if _, err := os.Stat(srcBase); os.IsNotExist(err) {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Source path not found",
 		})
@@ -91,7 +91,7 @@ func Copy(c *gin.Context, basePath string) {
 
 		info, err := os.Stat(srcPath)
 		if err != nil {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "File or directory not found: " + file,
 			})
@@ -100,7 +100,7 @@ func Copy(c *gin.Context, basePath string) {
 
 		if info.IsDir() {
 			if err := copyDir(srcPath, dstPath); err != nil {
-				c.JSON(400, gin.H{
+				c.JSON(200, gin.H{
 					"ok":  false,
 					"msg": "Failed to copy directory: " + file,
 				})
@@ -108,7 +108,7 @@ func Copy(c *gin.Context, basePath string) {
 			}
 		} else {
 			if err := copyFile(srcPath, dstPath); err != nil {
-				c.JSON(400, gin.H{
+				c.JSON(200, gin.H{
 					"ok":  false,
 					"msg": "Failed to copy file: " + file,
 				})

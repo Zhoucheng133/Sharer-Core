@@ -72,7 +72,7 @@ func requestMiddleware(username string, password string, secret string) gin.Hand
 			if utils.TokenCheck(username, password, c.GetHeader("token"), secret) {
 				c.Next()
 			} else {
-				c.JSON(401, gin.H{
+				c.JSON(200, gin.H{
 					"ok":  false,
 					"msg": "Not authorized",
 				})

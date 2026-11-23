@@ -11,7 +11,7 @@ func Move(c *gin.Context, basePath string) {
 	var reqBody CopyMoveBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		if reqBody.From == "" || len(reqBody.Files) == 0 || reqBody.To == "" {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Parameter illegal",
 			})
@@ -23,7 +23,7 @@ func Move(c *gin.Context, basePath string) {
 	dstBase := filepath.Join(basePath, reqBody.To)
 
 	if _, err := os.Stat(srcBase); os.IsNotExist(err) {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Source path not found",
 		})
@@ -35,7 +35,7 @@ func Move(c *gin.Context, basePath string) {
 		dstPath := filepath.Join(dstBase, file)
 
 		if err := os.Rename(srcPath, dstPath); err != nil {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Failed to move file or directory: " + file,
 			})

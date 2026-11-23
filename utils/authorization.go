@@ -39,7 +39,7 @@ func Login(c *gin.Context, username string, password string, secret string) {
 
 	var user User
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Invalid JSON",
 		})
@@ -58,7 +58,7 @@ func Login(c *gin.Context, username string, password string, secret string) {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		tokenString, err := token.SignedString([]byte(secret))
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Internal server error",
 			})

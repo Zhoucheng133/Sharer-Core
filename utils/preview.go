@@ -28,7 +28,7 @@ func GetPreview(c *gin.Context, basePath string, username string, password strin
 
 	file, err := os.Open(decodedPath)
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "File not found",
 		})

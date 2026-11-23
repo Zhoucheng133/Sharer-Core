@@ -17,7 +17,7 @@ func Rename(c *gin.Context, basePath string) {
 	var reqBody RenameBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		if reqBody.Path == "" || reqBody.NewName == "" || reqBody.OldName == "" {
-			c.JSON(400, gin.H{
+			c.JSON(200, gin.H{
 				"ok":  false,
 				"msg": "Parameter illegal",
 			})
@@ -28,7 +28,7 @@ func Rename(c *gin.Context, basePath string) {
 	newPath := filepath.Join(basePath, reqBody.Path, reqBody.NewName)
 	err := os.Rename(oldPath, newPath)
 	if err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(200, gin.H{
 			"ok":  false,
 			"msg": "Rename failed",
 		})
