@@ -62,6 +62,7 @@ func requestMiddleware(username string, password string, secret string) gin.Hand
 			strings.HasPrefix(c.Request.URL.Path, "/api/download"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/raw"),
+			strings.HasPrefix(c.Request.URL.Path, "/api/preview"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/token"),
 			strings.HasPrefix(c.Request.URL.Path, "/api/login"):
 			// 这些操作将token写在URL param中
@@ -121,6 +122,8 @@ func newServer(port, basePath, username, password string) *http.Server {
 		switch {
 		case strings.HasPrefix(c.Request.URL.Path, "/api/raw"):
 			utils.GetRaw(c, basePath, username, password, id)
+		case strings.HasPrefix(c.Request.URL.Path, "/api/preview"):
+			utils.GetPreview(c, basePath, username, password, id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/download"):
 			utils.Download(c, basePath, username, password, id)
 		case strings.HasPrefix(c.Request.URL.Path, "/api/multidownload"):

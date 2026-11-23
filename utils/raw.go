@@ -8,8 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetRaw(c *gin.Context, basePath string, username string, password string, secret string) {
-
+// resolveFilePath 校验 token 与路径参数，返回服务端上的实际文件路径。
+// 校验失败时已写好响应，调用方只需返回。
+func resolveFilePath(c *gin.Context, basePath string, username string, password string, secret string) (string, bool) {
 	token := c.DefaultQuery("token", "")
 
 	if !TokenCheck(username, password, token, secret) {
@@ -17,7 +18,7 @@ func GetRaw(c *gin.Context, basePath string, username string, password string, s
 			"ok":  false,
 			"msg": "Not authorized",
 		})
-		return
+		return "", false
 	}
 
 	rawPath := c.DefaultQuery("path", "")
@@ -26,7 +27,7 @@ func GetRaw(c *gin.Context, basePath string, username string, password string, s
 			"ok":  false,
 			"msg": "Path parameter is required",
 		})
-		return
+		return "", false
 	}
 	decodedPath, err := url.QueryUnescape(rawPath)
 	decodedPath = basePath + "/" + decodedPath
@@ -35,7 +36,7 @@ func GetRaw(c *gin.Context, basePath string, username string, password string, s
 			"ok":  false,
 			"msg": fmt.Sprintf("Invalid path: %v", err),
 		})
-		return
+		return "", false
 	}
 	file, err := os.Open(decodedPath)
 	if err != nil {
@@ -43,15 +44,30 @@ func GetRaw(c *gin.Context, basePath string, username string, password string, s
 			"ok":  false,
 			"msg": "File not found",
 		})
-		return
+		return "", false
 	}
 	defer file.Close()
-	fileInfo, _ := os.Stat(decodedPath)
+	fileInfo, err := file.Stat()
+	if err != nil {
+		c.JSON(404, gin.H{
+			"ok":  false,
+			"msg": "File not found",
+		})
+		return "", false
+	}
 	if fileInfo.IsDir() {
 		c.JSON(400, gin.H{
 			"ok":  false,
 			"msg": "The path is a directory",
 		})
+		return "", false
+	}
+	return decodedPath, true
+}
+
+func GetRaw(c *gin.Context, basePath string, username string, password string, secret string) {
+	decodedPath, ok := resolveFilePath(c, basePath, username, password, secret)
+	if !ok {
 		return
 	}
 	c.File(decodedPath)
